@@ -151,6 +151,13 @@ void BackgroundManager::init()
                 this, &BackgroundManager::onRestBackgroundManager);
     }
 
+    // 如果开启--video-wallpaper，使用指定的窗口作为桌面
+    QVariant videoWindowId = qApp->property("video-window-id");
+    if (videoWindowId.isValid()) {
+        Xcb::XcbMisc::instance().set_window_type(videoWindowId.toULongLong(), Xcb::XcbMisc::Desktop);
+    }
+
+
     onRestBackgroundManager();
 }
 
@@ -240,7 +247,14 @@ BackgroundWidgetPointer BackgroundManager::createBackgroundWidget(ScreenPointer 
         DesktopUtil::set_prview_window(bwp.data());
     } else {
 //        Xcb::XcbMisc::instance().set_window_type(bwp->winId(), Xcb::XcbMisc::Desktop);
-        DesktopUtil::set_desktop_window(bwp.data());
+
+        // 如果开启--video-wallpaper，使用指定的窗口作为桌面
+        if (qApp->property("video-window-id").isValid() == false) {
+            DesktopUtil::set_desktop_window(bwp.data());
+        } else {
+            bwp->setWindowFlag(Qt::FramelessWindowHint);
+            bwp->setWindowFlag(Qt::WindowStaysOnBottomHint);
+        }
     }
 
     return bwp;

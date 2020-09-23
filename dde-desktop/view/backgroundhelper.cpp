@@ -104,6 +104,12 @@ BackgroundHelper::BackgroundHelper(bool preview, QObject *parent)
         });
     }
 
+    // 如果开启--video-wallpaper，使用指定的窗口作为桌面
+    QVariant videoWindowId = qApp->property("video-window-id");
+    if (videoWindowId.isValid()) {
+        Xcb::XcbMisc::instance().set_window_type(videoWindowId.toULongLong(), Xcb::XcbMisc::Desktop);
+    }
+
     onWMChanged();
 }
 
@@ -510,7 +516,10 @@ void BackgroundHelper::onScreenAdded(QScreen *screen)
                 if (m_previuew) {
                     l->setWindowFlags(l->windowFlags() | Qt::BypassWindowManagerHint | Qt::WindowDoesNotAcceptFocus);
                 } else {
-                    Xcb::XcbMisc::instance().set_window_type(l->winId(), Xcb::XcbMisc::Desktop);
+                    // 如果开启--video-wallpaper，使用指定的窗口作为桌面
+                    if (qApp->property("video-window-id").isValid() == false) {
+                        Xcb::XcbMisc::instance().set_window_type(l->winId(), Xcb::XcbMisc::Desktop);
+                    }
                 }
 
                 if (m_visible)
@@ -575,7 +584,10 @@ void BackgroundHelper::onScreenAdded(QScreen *screen)
     if (m_previuew) {
         l->setWindowFlags(l->windowFlags() | Qt::BypassWindowManagerHint | Qt::WindowDoesNotAcceptFocus);
     } else {
-        Xcb::XcbMisc::instance().set_window_type(l->winId(), Xcb::XcbMisc::Desktop);
+
+        if (qApp->property("video-window-id").isValid() == false) {
+            Xcb::XcbMisc::instance().set_window_type(l->winId(), Xcb::XcbMisc::Desktop);
+        }
     }
 
     if (m_visible)

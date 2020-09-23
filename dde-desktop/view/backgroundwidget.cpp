@@ -14,7 +14,10 @@
 BackgroundWidget::BackgroundWidget(QWidget *parent)
     : QWidget(parent)
 {
-
+    // 如果开启--video-wallpaper，桌面背景为透明
+    if (qApp->property("video-window-id").isValid()) {
+        this->setAttribute(Qt::WA_TranslucentBackground, true);
+    }
 }
 
 BackgroundWidget::~BackgroundWidget()
@@ -35,6 +38,13 @@ void BackgroundWidget::setPixmap(const QPixmap &pixmap)
 
 void BackgroundWidget::paintEvent(QPaintEvent *event)
 {
+    // 如果开启--video-wallpaper，桌面背景为透明
+    if (qApp->property("video-window-id").isValid()) {
+        QPainter pa(this);
+        pa.fillRect(event->rect(), QBrush(Qt::transparent));
+        return;
+    }
+
     qreal scale = devicePixelRatioF();
     if (scale > 1.0 && event->rect() == rect()) {
         if (backingStore()->handle()->paintDevice()->devType() != QInternal::Image) {

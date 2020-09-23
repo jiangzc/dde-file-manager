@@ -133,6 +133,14 @@ int main(int argc, char *argv[])
         }
     }
 
+    // video-wallpaper
+    for (int i = 0; i < app.arguments().count() - 1; i++) {
+        if (app.arguments()[i] == "--video-wallpaper") {
+            app.setProperty("video-window-id", app.arguments()[i+1].toULongLong());
+            break;
+        }
+    }
+
     if (fileDialogOnly && getuid() != 0) {
         // --file-dialog-only should only used by `root`.
         qDebug() << "Current UID != 0, the `--file-dialog-only` argument is ignored.";
